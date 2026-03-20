@@ -32,13 +32,13 @@ A Spring Boot application for managing orders and calculating monthly revenue wi
 ```
 com.example.orders
  ├── controller       # REST Controllers
- ├── service          # Business logic
+ ├── service          # Business logic (OrderService, RevenueService, DiscountService)
  ├── repository       # In-memory storage
  ├── model            # DTOs & Enums
  │    ├── OrderDTO.java
  │    └── CustomerType.java
  ├── exception        # Global exception handling
- └── OrderApplication.java
+ └── MonthlyRevenueApp.java
 ```
 
 ---

@@ -1,5 +1,9 @@
 package org.example.service;
 
+import org.example.model.OrderDTO;
+
+import java.math.BigDecimal;
+
 public interface DiscountService {
-    double applyDiscount(double amount);
+    BigDecimal applyDiscount(OrderDTO order);
 }
