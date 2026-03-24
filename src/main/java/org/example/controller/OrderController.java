@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.example.model.OrderDTO;
 import org.example.service.OrderService;
 import org.example.service.RevenueService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +15,14 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing orders and revenue operations.
+ */
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService service;
     private final RevenueService revenueService;
@@ -25,23 +32,70 @@ public class OrderController {
         this.revenueService = revenueService;
     }
 
+    /**
+     * Creates a new order.
+     *
+     * @param order the order request payload
+     * @return created order with generated ID
+     */
     @PostMapping
     public ResponseEntity<OrderDTO> create(@Valid @RequestBody OrderDTO order) {
-        return new ResponseEntity<>(service.create(order), HttpStatus.CREATED);
+        log.info("Received request to create order: {}", order);
+
+        OrderDTO createdOrder = service.create(order);
+
+        log.info("Order created successfully with id: {}", createdOrder.getId());
+
+        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
+    /**
+     * Fetches an order by its ID.
+     *
+     * @param id the order ID
+     * @return order details
+     */
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+        log.info("Fetching order with id: {}", id);
+
+        OrderDTO order = service.getById(id);
+
+        return ResponseEntity.ok(order);
     }
 
+    /**
+     * Retrieves orders filtered by a specific month.
+     *
+     * @param month the month in format YYYY-MM
+     * @return list of orders for the given month
+     */
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getByMonth(@RequestParam String month) {
-        return ResponseEntity.ok(service.getByMonth(month));
+        log.info("Fetching orders for month: {}", month);
+
+        List<OrderDTO> orders = service.getByMonth(month);
+
+        return ResponseEntity.ok(orders);
     }
 
+    /**
+     * Calculates monthly revenue grouped by YearMonth.
+     *
+     * Business Rules:
+     * - Applies 10% discount for PREMIUM customers
+     * - Ignores null or negative amounts
+     *
+     * @return map of YearMonth to total revenue
+     */
     @GetMapping("/revenue")
     public ResponseEntity<Map<YearMonth, BigDecimal>> getRevenue() {
-        return ResponseEntity.ok(revenueService.calculateMonthlyRevenue());
+        log.info("Calculating monthly revenue");
+
+        Map<YearMonth, BigDecimal> revenue = revenueService.calculateMonthlyRevenue();
+
+        log.info("Revenue calculated successfully");
+
+        return ResponseEntity.ok(revenue);
     }
 }
